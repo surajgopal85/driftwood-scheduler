@@ -18,6 +18,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .btn { padding: 5px 10px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--panel); }
 .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .btn.quiet { border-color: transparent; color: var(--ink-soft); }
+.actions { display: inline-flex; gap: 6px; align-items: center; }
+.btn.danger { color: var(--hard); }
+.btn.danger:hover { background: var(--hard-bg); }
 .status { display: inline-flex; gap: 12px; margin-left: auto; }
 .status .hard { color: var(--hard); font-weight: 600; }
 .status .soft { color: var(--soft); font-weight: 600; }

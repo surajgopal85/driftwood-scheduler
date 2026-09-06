@@ -76,4 +76,10 @@ export function upsertFacility(f: { workers: Worker[]; shifts: ShiftTemplate[]; 
   for (const x of f.shifts) s.run(x.id, JSON.stringify(x));
   d.prepare("INSERT OR REPLACE INTO policy (id,json) VALUES (1,?)").run(JSON.stringify(f.policy));
 }
+export function deleteSchedule(id: string) {
+  db().prepare("DELETE FROM schedules WHERE id = ?").run(id);
+}
+export function clearAssignments(scheduleId: string) {
+  db().prepare("DELETE FROM assignments WHERE schedule_id = ?").run(scheduleId);
+}
 export { FOREVER, uid };
