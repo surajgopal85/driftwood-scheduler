@@ -1,7 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { loadFacility, getSchedule, listAssignments, addAssignment, removeAssignment, createSchedule, setScheduleStatus } from "@/db/repo";
+import { loadFacility, getSchedule, listAssignments, addAssignment, removeAssignment, createSchedule, setScheduleStatus, deleteSchedule as dbDeleteSchedule, clearAssignments } from "@/db/repo";
 import { rankForSlot, workedInterval } from "@/domain/rank";
+import { slotsFor } from "@/domain/validate";
 import type { ISODate, ShiftId } from "@/domain/types";
 import { weekStart, addDays } from "@/domain/time";
 import { redirect } from "next/navigation";
@@ -50,4 +51,37 @@ export async function createFromForm(formData: FormData) {
   const start = raw ? weekStart(raw) : weekStart(addDays(new Date().toISOString().slice(0, 10), 7));
   const s = createSchedule(start, 14);
   redirect(`/?s=${s.id}`);
+}
+
+export async function autofill(scheduleId: string) {
+  const f = loadFacility();
+  const s = getSchedule(scheduleId);
+  if (!s) throw new Error("schedule not found");
+  const slots = slotsFor(f, s).filter((x) => x.demand > 0).sort((a, b) => a.date.localeCompare(b.date));
+  let filled = 0;
+  for (const slot of slots) {
+    for (let i = 0; i < slot.demand; i++) {
+      const cur = listAssignments(s.id);
+      const already = cur.filter((a) => a.date === slot.date && a.shiftId === slot.shiftId).length;
+      if (already > i) continue; // slot position already filled
+      const top = rankForSlot(f, s, cur, slot.date, slot.shiftId).find((c) => c.eligible && c.mode === "regular");
+      if (!top) break;
+      const { id: _drop, ...a } = top.assignment; void _drop;
+      addAssignment(a);
+      filled++;
+    }
+  }
+  revalidatePath("/");
+  return filled;
+}
+
+export async function removeSchedule(scheduleId: string) {
+  dbDeleteSchedule(scheduleId);
+  revalidatePath("/");
+  redirect("/");
+}
+
+export async function clearSchedule(scheduleId: string) {
+  clearAssignments(scheduleId);
+  revalidatePath("/");
 }

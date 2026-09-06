@@ -2,7 +2,7 @@
 import { useState, useTransition, useMemo } from "react";
 import type { Assignment, Facility, ISODate, Schedule, ShiftId, Slot, Violation } from "@/domain/types";
 import { dayOfWeek, fmtInterval, WEEKDAY_SHORT } from "@/domain/time";
-import { assign, unassign, rankSlot, publish } from "./actions";
+import { assign, unassign, rankSlot, publish, autofill, removeSchedule, clearSchedule } from "./actions";
 
 type Cand = Awaited<ReturnType<typeof rankSlot>>[number];
 
@@ -73,7 +73,22 @@ export function Board({ facility: f, schedule: s, schedules, assignments, violat
           )}
         </span>
         <form action={createAction}><input type="date" name="start" /><button className="btn">New 2-week schedule</button></form>
-        {s.status === "draft" && <button className="btn quiet" onClick={() => start(() => publish(s.id))}>Mark published</button>}
+        <div className="actions">
+          {s.status === "draft" && (
+            <>
+              <button className="btn primary" disabled={pending} onClick={() => start(async () => { await autofill(s.id); })}>
+                {pending ? "Filling..." : "Auto-fill"}
+              </button>
+              <button className="btn quiet" disabled={pending} onClick={() => start(async () => { await clearSchedule(s.id); })}>
+                Clear assignments
+              </button>
+              <button className="btn quiet" onClick={() => start(() => publish(s.id))}>Mark published</button>
+            </>
+          )}
+          <button className="btn quiet danger" onClick={() => { if (confirm("Delete this schedule? This can't be undone.")) start(() => removeSchedule(s.id)); }}>
+            Delete
+          </button>
+        </div>
         <span className="status">
           {hard.length ? <span className="hard">{hard.length} must fix</span> : <span className="ok">Nothing blocking</span>}
           <span className="soft">{soft.length} tradeoffs</span>
