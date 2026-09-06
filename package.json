@@ -1,0 +1,29 @@
+{
+  "name": "rvs-scheduler",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:reset": "rm -f data/rvs.db && tsx scripts/seed.ts",
+    "seed": "tsx scripts/seed.ts",
+    "rules:apply": "tsx scripts/rules-apply.ts",
+    "pto:import": "tsx scripts/import-pto.ts",
+    "validate": "tsx scripts/validate.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "draft": "tsx scripts/draft.ts"
+  },
+  "dependencies": {
+    "next": "15.5.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6"
+  }
+}
