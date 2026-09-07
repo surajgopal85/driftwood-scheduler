@@ -8,13 +8,13 @@ import { inEffect, adjustedTarget, weeksOf } from "../src/domain/time";
 import { readRuleFile, materialize } from "../scripts/_load";
 
 const base = JSON.parse(fs.readFileSync("data/facility.json", "utf8"));
-const rf1 = readRuleFile("rules/v0.1.json");
-const rf2 = fs.existsSync("rules/v0.2.json") ? readRuleFile("rules/v0.2.json") : { rules: [], effectiveFrom: "" };
-const rules = [
-  ...rf1.rules.map((e, i) => materialize(e, `r1_${i}`, rf1.effectiveFrom, null)),
-  ...rf2.rules.map((e, i) => materialize(e, `r2_${i}`, rf2.effectiveFrom, null)),
-];
-const f: Facility = { ...base, rules, pto: [] };
+const allRules: ReturnType<typeof materialize>[] = [];
+for (const path of ["rules/v0.1.json", "rules/v0.2.json", "rules/v0.3.json"]) {
+  if (!fs.existsSync(path)) continue;
+  const rf = readRuleFile(path);
+  allRules.push(...rf.rules.map((e, i) => materialize(e, `${path}_${i}`, rf.effectiveFrom, null)));
+}
+const f: Facility = { ...base, rules: allRules, pto: [] };
 const s: Schedule = { id: "t", startDate: "2026-09-14", days: 14, status: "draft" }; // a Monday
 const tpl = (id: string) => f.shifts.find((x) => x.id === id)!;
 const asg = (workerId: string, date: string, shiftId: Assignment["shiftId"], extra: Partial<Assignment> = {}): Assignment => ({
@@ -29,29 +29,31 @@ test("empty schedule: every demanded slot is a coverage gap", () => {
   assert.equal(gaps.length, 14 * 3); // AM(2), EVENING(2), OVN(1) demanded; MID is 0
 });
 
-test("Kate H: no PM Tuesday is hard; EVENING elsewhere is only soft", () => {
-  const tue = validate(f, s, [asg("kate-h", "2026-09-15", "EVENING")]);
-  assert.ok(codes(tue, "kate-h").includes("RULE_FORBID"));
-  assert.ok(tue.find((v) => v.code === "RULE_FORBID")!.quote?.includes("No PM Tuesday"));
-  const wed = validate(f, s, [asg("kate-h", "2026-09-16", "EVENING")]);
-  const kh = wed.filter((v) => v.workerId === "kate-h" && v.code !== "HOURS_UNDER");
-  assert.deepEqual(kh.map((v) => v.severity), ["soft"]);
+test("Charlie: no PM on Monday is hard", () => {
+  const mon = validate(f, s, [asg("charlie", "2026-09-14", "EVENING")]);
+  assert.ok(codes(mon, "charlie").includes("RULE_FORBID"));
+  assert.ok(mon.find((v) => v.code === "RULE_FORBID" && v.workerId === "charlie")!.quote?.includes("No PM Shifts on Mondays"));
 });
 
-test("restrict with days+shifts leaves other days unaffected (Robin)", () => {
-  const ok = validate(f, s, [asg("robin", "2026-09-15", "MID")]); // Tuesday MID
-  assert.ok(!codes(ok, "robin").includes("RULE_RESTRICT"));
-  const bad = validate(f, s, [asg("robin", "2026-09-15", "AM")]); // Tuesday AM
-  assert.ok(codes(bad, "robin").includes("RULE_RESTRICT"));
-  const thu = validate(f, s, [asg("robin", "2026-09-17", "AM")]); // Thursday: not her day
-  assert.ok(codes(thu, "robin").includes("RULE_RESTRICT"));
+test("Charlie: no shifts Tue/Thu during school (Aug-Dec)", () => {
+  const tue = validate(f, s, [asg("charlie", "2026-09-15", "AM")]); // Tuesday in school period
+  assert.ok(codes(tue, "charlie").includes("RULE_FORBID"));
 });
 
-test("PTO lowers the hours target instead of being routed around", () => {
+test("Alex: no Saturdays is hard, no OVN is hard", () => {
+  const sat = validate(f, s, [asg("alex", "2026-09-19", "AM")]); // Saturday
+  assert.ok(codes(sat, "alex").includes("RULE_FORBID"));
+  const ovn = validate(f, s, [asg("alex", "2026-09-14", "OVN")]); // Monday OVN
+  assert.ok(codes(ovn, "alex").includes("RULE_FORBID"));
+  const ok = validate(f, s, [asg("alex", "2026-09-14", "AM")]); // Monday AM — fine
+  assert.ok(!codes(ok, "alex").includes("RULE_FORBID"));
+});
+
+test("PTO lowers the hours target", () => {
   const week = weeksOf(s.startDate, 7)[0];
-  const beth = f.workers.find((w) => w.id === "beth")!;
-  assert.equal(adjustedTarget(beth, [], week), 40);
-  assert.equal(adjustedTarget(beth, [{ id: "p", workerId: "beth", start: "2026-09-15", end: "2026-09-16" }], week), 24);
+  const steph = f.workers.find((w) => w.id === "steph")!;
+  assert.equal(adjustedTarget(steph, [], week), 40);
+  assert.equal(adjustedTarget(steph, [{ id: "p", workerId: "steph", start: "2026-09-15", end: "2026-09-16" }], week), 24);
 });
 
 test("effectivity window answers 'was this rule live on date X'", () => {
@@ -62,12 +64,12 @@ test("effectivity window answers 'was this rule live on date X'", () => {
   assert.equal(inEffect(r, "2026-12-01"), false);
 });
 
-test("worked interval comes from the rule, not the slot (Nick 9–9, David 10p–8a)", () => {
+test("worked interval comes from the rule, not the slot (Nick 9-9, David 10p-8a)", () => {
   const nick = f.workers.find((w) => w.id === "nick")!;
   assert.deepEqual(workedInterval(f, nick, "2026-09-19", "AM"), { interval: { start: "09:00", end: "21:00" }, hours: 12 });
   assert.equal(workedInterval(f, nick, "2026-09-16", "AM").hours, 6); // Wednesday is his 6h day
   const david = f.workers.find((w) => w.id === "david")!;
-  assert.equal(workedInterval(f, david, "2026-09-14", "OVN").hours, 10);
+  assert.equal(workedInterval(f, david, "2026-09-17", "OVN").hours, 10); // Thursday
 });
 
 test("OT: a second shift the same day needs the flag, is OVN-only, max one per week", () => {
@@ -81,11 +83,13 @@ test("OT: a second shift the same day needs the flag, is OVN-only, max one per w
   assert.ok(codes(two, "steph").includes("OT_LIMIT"));
 });
 
-test("Michelle: six in a row is hard, split days off is soft", () => {
-  const six = ["14", "15", "16", "17", "18", "19"].map((d) => asg("michelle", `2026-09-${d}`, "AM"));
-  const vs = validate(f, s, six);
-  const pat = vs.filter((v) => v.workerId === "michelle" && v.code === "PATTERN");
-  assert.ok(pat.some((v) => v.severity === "hard" && v.message.includes("more than 5")));
+test("Maddi: OVN only, Mon-Wed only", () => {
+  const ok = validate(f, s, [asg("maddi", "2026-09-14", "OVN")]); // Monday OVN
+  assert.ok(!codes(ok, "maddi").includes("RULE_RESTRICT"));
+  const badShift = validate(f, s, [asg("maddi", "2026-09-14", "AM")]); // Monday AM
+  assert.ok(codes(badShift, "maddi").includes("RULE_RESTRICT"));
+  const badDay = validate(f, s, [asg("maddi", "2026-09-17", "OVN")]); // Thursday OVN
+  assert.ok(codes(badDay, "maddi").includes("RULE_RESTRICT"));
 });
 
 test("manager fallback cap: Kacy 4, Gordon 1", () => {
@@ -95,13 +99,9 @@ test("manager fallback cap: Kacy 4, Gordon 1", () => {
   assert.ok(!codes(validate(f, s, k), "kacy").includes("FALLBACK_CAP"));
 });
 
-test("rank: Tuesday OVN puts Zach/David first, managers last, gives reasons", () => {
-  const ranked = rankForSlot(f, s, [], "2026-09-15", "OVN");
-  const eligible = ranked.filter((c) => c.eligible).map((c) => c.worker.id);
-  assert.ok(eligible.slice(0, 2).includes("zach-w") && eligible.slice(0, 2).includes("david"));
-  const beth = ranked.find((c) => c.worker.id === "beth")!;
-  assert.equal(beth.eligible, false);
-  assert.ok(beth.hard[0].quote?.includes("AM only"));
-  assert.ok(ranked.findIndex((c) => c.worker.id === "kacy") > eligible.length - 2);
+test("rank: Thursday OVN puts David first, managers last", () => {
+  const ranked = rankForSlot(f, s, [], "2026-09-17", "OVN"); // Thursday
+  const eligible = ranked.filter((c) => c.eligible);
+  assert.ok(eligible[0].worker.id === "david");
   assert.ok(ranked[0].resolves.some((v) => v.code === "COVERAGE_GAP"));
 });

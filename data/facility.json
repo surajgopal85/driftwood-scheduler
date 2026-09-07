@@ -15,36 +15,18 @@
     "turnaroundPenalty": { "EVENING_to_AM": 3, "OVN_to_AM": 6 }
   },
   "workers": [
-    { "id": "beth",     "name": "Beth",       "aliases": ["Beth"],                       "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true,  "color": "#3B6EA8" },
-    { "id": "david",    "name": "David R.",   "aliases": ["David", "David R.", "David Rizo"], "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true,  "color": "#5B4B8A" },
-    { "id": "erin",     "name": "Erin",       "aliases": ["Erin"],                       "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true,  "color": "#2E7D6B" },
-    { "id": "evan",     "name": "Evan",       "aliases": ["Evan"],                       "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true,  "color": "#8A5A2E" },
-    { "id": "kate-h",   "name": "Kate H.",    "aliases": ["Kate", "Kate H", "Kate H.", "Kate Hern"], "role": "staff", "targetHoursPerWeek": 40, "otEligible": true, "active": true, "color": "#A83B5B" },
-    { "id": "kate-m",   "name": "Kate M.",    "aliases": ["Kate M.", "Kate M"],          "role": "staff", "targetHoursPerWeek": 32, "otEligible": false, "active": true,  "color": "#C2703A" },
-    { "id": "michelle", "name": "Michelle",   "aliases": ["Michelle"],                   "role": "staff", "targetHoursPerWeek": 40, "otEligible": true,  "active": false, "color": "#4F7D3B" },
-    { "id": "nick",     "name": "Nick",       "aliases": ["Nick"],                       "role": "staff", "targetHoursPerWeek": 30, "otEligible": false, "active": true,  "color": "#2B6C8F" },
-    { "id": "robin",    "name": "Robin",      "aliases": ["Robin"],                      "role": "staff", "targetHoursPerWeek": 32, "otEligible": false, "active": true,  "color": "#7A4E9E" },
+    { "id": "charlie",  "name": "Charlie",    "aliases": ["Charlie"],                    "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true,  "color": "#6A8C3B" },
     { "id": "steph",    "name": "Stephanie",  "aliases": ["Steph", "Stephanie", "Stephanie Foster"], "role": "staff", "targetHoursPerWeek": 40, "otEligible": true, "active": true, "color": "#B0463A" },
-    { "id": "toni",     "name": "Toni",       "aliases": ["Toni"],                       "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true,  "color": "#3A8F86" },
-    { "id": "whitlee",  "name": "Whitlee",    "aliases": ["Whitlee"],                    "role": "staff", "targetHoursPerWeek": 24, "otEligible": false, "active": true,  "color": "#8F6B3A" },
-    { "id": "zach-w",   "name": "Zach W.",    "aliases": ["Zach W", "Zach W.", "Zack", "Zach White"], "role": "staff", "targetHoursPerWeek": 24, "otEligible": false, "active": true, "color": "#3F5C7A" },
-
-    { "id": "charlie",  "name": "Charlie",    "aliases": ["Charlie"],                    "role": "staff", "targetHoursPerWeek": 40, "otEligible": true,  "active": true,  "color": "#6A8C3B" },
     { "id": "alex",     "name": "Alex",       "aliases": ["Alex"],                       "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true,  "color": "#3B8C7A" },
-    { "id": "maddie",   "name": "Maddie",     "aliases": ["Maddie"],                     "role": "staff", "targetHoursPerWeek": 32, "otEligible": false, "active": true,  "color": "#8C5B8A" },
-    { "id": "brad-p",   "name": "Brad P.",    "aliases": ["Brad", "Brad P.", "Brad P"],   "role": "staff", "targetHoursPerWeek": 24, "otEligible": false, "active": true,  "color": "#5B7A3B" },
-    { "id": "aimee",    "name": "Aimee",      "aliases": ["Aimee", "Amiee"],             "role": "staff", "targetHoursPerWeek": 24, "otEligible": false, "active": true,  "color": "#7A5B3B" },
+    { "id": "nick",     "name": "Nick",       "aliases": ["Nick"],                       "role": "staff", "targetHoursPerWeek": 30, "otEligible": false, "active": true,  "color": "#2B6C8F" },
+    { "id": "maddi",    "name": "Maddi",      "aliases": ["Maddi", "Maddie"],            "role": "staff", "targetHoursPerWeek": 24, "otEligible": false, "active": true,  "color": "#8C5B8A" },
+    { "id": "david",    "name": "David R.",   "aliases": ["David", "David R.", "David Rizo"], "role": "staff", "targetHoursPerWeek": 32, "otEligible": false, "active": true,  "color": "#5B4B8A" },
+
+    { "id": "zach-w",   "name": "Zach W.",    "aliases": ["Zach W", "Zach W.", "Zack", "Zach White", "Zach"], "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": true, "color": "#3F5C7A" },
 
     { "id": "kacy",     "name": "Kacy",       "aliases": ["Kacy", "Kacy Kelly"],         "role": "manager", "targetHoursPerWeek": 0, "otEligible": false, "active": true, "color": "#6B6B6B",
       "fallback": { "maxShiftsPerWeek": 4, "shifts": ["AM", "MID"], "priority": 1 } },
     { "id": "gordon",   "name": "Gordon",     "aliases": ["Gordon", "Gordon Kaywin"],    "role": "manager", "targetHoursPerWeek": 0, "otEligible": false, "active": true, "color": "#4A4A4A",
-      "fallback": { "maxShiftsPerWeek": 1, "shifts": ["AM", "MID"], "priority": 2 } },
-
-    { "id": "dane",     "name": "Dane",       "aliases": ["Dane"],    "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": false, "color": "#999999" },
-    { "id": "georgia",  "name": "Georgia",    "aliases": ["Georgia"], "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": false, "color": "#999999" },
-    { "id": "jamie",    "name": "Jamie",      "aliases": ["Jamie"],   "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": false, "color": "#999999" },
-    { "id": "linda",    "name": "Linda",      "aliases": ["Linda"],   "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": false, "color": "#999999" },
-    { "id": "paden",    "name": "Paden",      "aliases": ["Paden"],   "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": false, "color": "#999999" },
-    { "id": "sydney",   "name": "Sydney",     "aliases": ["Sydney"],  "role": "staff", "targetHoursPerWeek": 40, "otEligible": false, "active": false, "color": "#999999" }
+      "fallback": { "maxShiftsPerWeek": 1, "shifts": ["AM", "MID"], "priority": 2 } }
   ]
 }

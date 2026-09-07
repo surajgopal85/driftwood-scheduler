@@ -5,7 +5,7 @@ import { DEFAULT_WEIGHT, FOREVER } from "../src/domain/types";
 export interface RuleFile {
   version: string;
   effectiveFrom: string;
-  rules: Array<Omit<Rule, "id" | "supersedes" | "weight" | "effective" | "createdAt"> & { weight?: number; effectiveTo?: string }>;
+  rules: Array<Omit<Rule, "id" | "supersedes" | "weight" | "effective" | "createdAt"> & { weight?: number; effectiveFrom?: string; effectiveTo?: string; effective?: { from: string; to: string } }>;
 }
 
 export function readRuleFile(path: string): RuleFile {
@@ -23,7 +23,7 @@ export function materialize(entry: RuleFile["rules"][number], id: string, from: 
     kind: entry.kind, scope: entry.scope, pattern: entry.pattern,
     bindingness: entry.bindingness, cost: entry.cost, overridableBy: entry.overridableBy,
     weight: entry.weight ?? DEFAULT_WEIGHT[entry.cost as Cost],
-    effective: { from, to: entry.effectiveTo ?? FOREVER },
+    effective: { from: entry.effective?.from ?? entry.effectiveFrom ?? from, to: entry.effective?.to ?? entry.effectiveTo ?? FOREVER },
     source: entry.source, createdAt: new Date().toISOString(),
   };
 }
