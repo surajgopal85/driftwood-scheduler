@@ -8,8 +8,12 @@ import { inEffect, adjustedTarget, weeksOf } from "../src/domain/time";
 import { readRuleFile, materialize } from "../scripts/_load";
 
 const base = JSON.parse(fs.readFileSync("data/facility.json", "utf8"));
-const rf = readRuleFile("rules/v0.1.json");
-const rules = rf.rules.map((e, i) => materialize(e, `r${i}`, rf.effectiveFrom, null));
+const rf1 = readRuleFile("rules/v0.1.json");
+const rf2 = fs.existsSync("rules/v0.2.json") ? readRuleFile("rules/v0.2.json") : { rules: [], effectiveFrom: "" };
+const rules = [
+  ...rf1.rules.map((e, i) => materialize(e, `r1_${i}`, rf1.effectiveFrom, null)),
+  ...rf2.rules.map((e, i) => materialize(e, `r2_${i}`, rf2.effectiveFrom, null)),
+];
 const f: Facility = { ...base, rules, pto: [] };
 const s: Schedule = { id: "t", startDate: "2026-09-14", days: 14, status: "draft" }; // a Monday
 const tpl = (id: string) => f.shifts.find((x) => x.id === id)!;
@@ -22,7 +26,7 @@ const codes = (vs: ReturnType<typeof validate>, workerId?: string) =>
 
 test("empty schedule: every demanded slot is a coverage gap", () => {
   const gaps = validate(f, s, []).filter((v) => v.code === "COVERAGE_GAP");
-  assert.equal(gaps.length, 14 * 4); // AM(2), MID(1), EVENING(2), OVN(1) all demanded
+  assert.equal(gaps.length, 14 * 3); // AM(2), EVENING(2), OVN(1) demanded; MID is 0
 });
 
 test("Kate H: no PM Tuesday is hard; EVENING elsewhere is only soft", () => {
