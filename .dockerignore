@@ -1,0 +1,6 @@
+node_modules
+.next
+data/rvs.db
+data/rvs.db-shm
+data/rvs.db-wal
+.git

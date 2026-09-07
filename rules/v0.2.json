@@ -1,0 +1,30 @@
+{
+  "version": "0.2",
+  "effectiveFrom": "2026-09-07",
+  "notes": "Sep 7 2026: Michelle inactive, added Charlie/Alex/Maddie/Brad P./Aimee from Gordon's published schedules (Jul-Sep 2026). MID demand set to 0. Rules derived from observed schedule patterns — all confidence < 0.8 need Gordon confirmation. Zach W. constraints relaxed per post-Michelle compensation.",
+  "rules": [
+    { "key": "charlie.am-custom", "workerId": "charlie", "kind": "restrict", "scope": { "shifts": ["AM"], "interval": { "start": "07:00", "end": "17:00" } },
+      "bindingness": "soft", "cost": "morale", "overridableBy": "gordon",
+      "source": { "text": "Charlie consistently works 7-5 (10h) AM shifts across all published schedules", "quote": "Charlie 7-5", "confidence": 0.7 } },
+
+    { "key": "alex.evening-preferred", "workerId": "alex", "kind": "forbid", "scope": { "shifts": ["OVN"] },
+      "bindingness": "soft", "cost": "morale", "overridableBy": "gordon",
+      "source": { "text": "Alex appears primarily in AM and EVENING shifts, never OVN in published schedules", "quote": "observed pattern", "confidence": 0.5 } },
+
+    { "key": "maddie.ovn-only", "workerId": "maddie", "kind": "restrict", "scope": { "shifts": ["OVN"] },
+      "bindingness": "hard", "cost": "contractual", "overridableBy": "gordon",
+      "source": { "text": "Maddie appears exclusively in OVN shifts across all published schedules", "quote": "observed pattern", "confidence": 0.6 } },
+
+    { "key": "brad-p.am-custom", "workerId": "brad-p", "kind": "restrict", "scope": { "shifts": ["AM"], "interval": { "start": "07:00", "end": "22:00" } },
+      "bindingness": "soft", "cost": "morale", "overridableBy": "gordon",
+      "source": { "text": "Brad P. works custom 7-10 shifts in published schedules", "quote": "Brad P. 7-10", "confidence": 0.5 } },
+
+    { "key": "aimee.am-custom", "workerId": "aimee", "kind": "restrict", "scope": { "shifts": ["AM"], "interval": { "start": "07:00", "end": "22:00" } },
+      "bindingness": "soft", "cost": "morale", "overridableBy": "gordon",
+      "source": { "text": "Aimee works custom 7-10 shifts in recent published schedules", "quote": "Amiee 7-10", "confidence": 0.5 } },
+
+    { "key": "steph.evening-2-10", "workerId": "steph", "kind": "restrict", "scope": { "shifts": ["EVENING"], "interval": { "start": "14:00", "end": "22:00" } },
+      "bindingness": "soft", "cost": "morale", "overridableBy": "gordon",
+      "source": { "text": "Stephanie consistently works 2-10 shifts rather than standard 3-11 in recent schedules", "quote": "Stephanie 2-10", "confidence": 0.7 } }
+  ]
+}
